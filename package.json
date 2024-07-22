@@ -4,7 +4,7 @@
   "description": "Sidecar to bridge a http prom-client to prom-client-dht",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standard && brittle test/integration.js"
   },
   "repository": {
     "type": "git",
@@ -30,5 +30,14 @@
     "hyperdht": "^6.15.4",
     "pino": "^9.3.1",
     "ready-resource": "^1.1.1"
+  },
+  "devDependencies": {
+    "brittle": "^3.6.1",
+    "dht-prometheus": "^0.0.1-alpha.1",
+    "fastify": "^4.28.1",
+    "hypercore-crypto": "^3.4.2",
+    "newline-decoder": "^1.0.2",
+    "standard": "^17.1.0",
+    "test-tmp": "^1.2.1"
   }
 }

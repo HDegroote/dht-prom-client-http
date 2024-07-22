@@ -15,6 +15,7 @@ function loadConfig () {
 
   if (!config.alias) {
     console.error('DHT_PROM_HTTP_ALIAS is required')
+    process.exit(1)
   }
 
   try {
@@ -33,7 +34,7 @@ function loadConfig () {
 
   if (process.env.DHT_PROM_HTTP_BOOTSTRAP_PORT) { // For tests
     config.bootstrap = [{
-      port: parseInt(process.env.DHT_PROM_BOOTSTRAP_PORT),
+      port: parseInt(process.env.DHT_PROM_HTTP_BOOTSTRAP_PORT),
       host: '127.0.0.1'
     }]
   }

@@ -13,7 +13,8 @@ class PromClientHttpBridge extends ReadyResource {
       this.getMetrics.bind(this),
       scraperPublicKey,
       alias,
-      scraperSecret
+      scraperSecret,
+      { bootstrap: dht.bootstrapNodes }
     )
   }
 
