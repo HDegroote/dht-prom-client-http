@@ -114,7 +114,7 @@ promhttp_metric_handler_requests_in_flight 1`)
   })
 
   return await new Promise((resolve, reject) => {
-    httpServer.listen({ port: 0 }, (err, address) => {
+    httpServer.listen({ port: 0, host: 'localhost' }, (err, address) => {
       if (err) {
         reject(err)
       } else {
