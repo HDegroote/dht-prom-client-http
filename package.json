@@ -1,0 +1,26 @@
+{
+  "name": "dht-prom-client-http",
+  "version": "0.0.0",
+  "description": "Sidecar to bridge a http prom-client to prom-client-dht",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HDegroote/dht-prom-client-http.git"
+  },
+  "keywords": [
+    "dht-prom-client",
+    "prom-client",
+    "http",
+    "dht",
+    "prometheus"
+  ],
+  "author": "H. Degroote",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/HDegroote/dht-prom-client-http/issues"
+  },
+  "homepage": "https://github.com/HDegroote/dht-prom-client-http#readme"
+}
