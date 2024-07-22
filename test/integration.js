@@ -145,11 +145,11 @@ async function setupScraper (t, bootstrap) {
 
   await bridge.ready()
   const bridgeHttpAddress = await new Promise((resolve, reject) => {
-    server.listen({ port: 0 }, (err, address) => {
+    server.listen({ port: 0, host: '127.0.0.1' }, (err, address) => {
       if (err) {
         reject(err)
       } else {
-        resolve(`http://localhost:${address.split(':')[2]}`)
+        resolve(`http://127.0.0.1:${address.split(':')[2]}`)
       }
     })
   })
