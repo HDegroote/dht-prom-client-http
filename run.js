@@ -8,7 +8,7 @@ const PromClientHttpBridge = require('./index')
 
 function loadConfig () {
   const config = {
-    promHttpAddress: process.env.DHT_PROM_HTTP_ADDRESS || 'http://localhost:9100/metrics',
+    promHttpAddress: process.env.DHT_PROM_HTTP_ADDRESS || 'http://127.0.0.1:9100/metrics',
     alias: process.env.DHT_PROM_HTTP_ALIAS,
     logLevel: process.env.DHT_PROM_HTTP_LOG_LEVEL || 'info'
   }

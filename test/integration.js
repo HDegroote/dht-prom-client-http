@@ -43,7 +43,7 @@ test('integration test (happy flow)', async t => {
     [EXECUTABLE],
     {
       env: {
-        DHT_PROM_HTTP_ADDRESS: `http://localhost:${httpPort}/metrics`,
+        DHT_PROM_HTTP_ADDRESS: `http://127.0.0.1:${httpPort}/metrics`,
         DHT_PROM_HTTP_ALIAS: 'dummy',
         DHT_PROM_HTTP_SHARED_SECRET: sharedSecret,
         DHT_PROM_HTTP_SCRAPER_PUBLIC_KEY: scraperPublicKey,
@@ -114,7 +114,7 @@ promhttp_metric_handler_requests_in_flight 1`)
   })
 
   return await new Promise((resolve, reject) => {
-    httpServer.listen({ port: 0, host: 'localhost' }, (err, address) => {
+    httpServer.listen({ port: 0, host: '127.0.0.1' }, (err, address) => {
       if (err) {
         reject(err)
       } else {
