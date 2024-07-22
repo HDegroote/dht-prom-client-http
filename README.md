@@ -20,6 +20,8 @@ DHT_PROM_HTTP_SCRAPER_PUBLIC_KEY=<scraper public key> DHT_PROM_HTTP_SHARED_SECRE
 
 ### Docker
 
+See https://hub.docker.com/repository/docker/hdegroote/dht-prom-client-http
+
 ```
 docker run --network host --env DHT_PROM_HTTP_SCRAPER_PUBLIC_KEY=<scraper public key> --env DHT_PROM_HTTP_SHARED_SECRET=<scraper secret> --env DHT_PROM_HTTP_ALIAS=http-bridge-test hdegroote/dht-prom-client-http
 ```
