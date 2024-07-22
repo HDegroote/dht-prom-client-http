@@ -149,7 +149,7 @@ async function setupScraper (t, bootstrap) {
       if (err) {
         reject(err)
       } else {
-        resolve(address)
+        resolve(`http://localhost:${address.split(':')[2]}`)
       }
     })
   })
