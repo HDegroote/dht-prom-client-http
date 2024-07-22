@@ -6,6 +6,9 @@
   "scripts": {
     "test": "standard && brittle test/integration.js"
   },
+  "bin": {
+    "dht-prom-client-http": "./run.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/HDegroote/dht-prom-client-http.git"
