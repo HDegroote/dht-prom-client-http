@@ -80,22 +80,27 @@ function setupLogging (logger, bridge) {
   const client = bridge.client
 
   client.on('register-alias-success', ({ updated }) => {
-    logger.info(`Successfully registered alias (updated: ${updated}`)
+    logger.info(`Successfully registered alias (updated: ${updated})`)
   })
-
   client.on('register-alias-error', (error) => {
     logger.info('Failed to register alias')
     logger.info(error)
   })
 
+  client.on('connection-open', ({ uid, remotePublicKey }) => {
+    logger.info(`Opened connection to ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)
+  })
+  client.on('socket-error', ({ error, uid, remotePublicKey }) => {
+    logger.info(`Error on connection to ${idEnc.normalize(remotePublicKey)}: ${error.stack} (uid: ${uid})`)
+  })
+  // TODO: probably rename socket-error to connection-error upstream, and add a connection-close
+
   client.on('metrics-request', ({ uid, remotePublicKey }) => {
     logger.info(`Received metrics request from ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)
   })
-
   client.on('metrics-error', ({ uid, error }) => {
     logger.info(`Failed to process metrics request: ${error} (uid: ${uid})`)
   })
-
   client.on('metrics-success', ({ uid }) => {
     logger.info(`Successfully processed metrics request (uid: ${uid})`)
   })
