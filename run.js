@@ -55,7 +55,7 @@ async function main () {
   const logger = pino({ level: logLevel })
   logger.info('Starting up Prometheus DHT HTTP bridge')
 
-  const dht = new HyperDHT({ bootstrap })
+  const dht = new HyperDHT({ bootstrap, connectionKeepAlive: 5000 })
   const bridge = new PromClientHttpBridge(
     dht,
     scraperPublicKey,
@@ -83,14 +83,16 @@ function setupLogging (logger, bridge) {
     logger.info(`Successfully registered alias (updated: ${updated})`)
   })
   client.on('register-alias-error', (error) => {
-    logger.info('Failed to register alias')
-    logger.info(error)
+    logger.info(`Failed to register alias ${error.stack}`)
   })
 
   client.on('connection-open', ({ uid, remotePublicKey }) => {
     logger.info(`Opened connection to ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)
   })
-  client.on('socket-error', ({ error, uid, remotePublicKey }) => {
+  client.on('connection-close', ({ uid, remotePublicKey }) => {
+    logger.info(`Closed connection to ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)
+  })
+  client.on('connection-error', ({ error, uid, remotePublicKey }) => {
     logger.info(`Error on connection to ${idEnc.normalize(remotePublicKey)}: ${error.stack} (uid: ${uid})`)
   })
   // TODO: probably rename socket-error to connection-error upstream, and add a connection-close
