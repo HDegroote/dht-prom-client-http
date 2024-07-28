@@ -10,11 +10,17 @@ function loadConfig () {
   const config = {
     promHttpAddress: process.env.DHT_PROM_HTTP_ADDRESS || 'http://127.0.0.1:9100/metrics',
     alias: process.env.DHT_PROM_HTTP_ALIAS,
-    logLevel: process.env.DHT_PROM_HTTP_LOG_LEVEL || 'info'
+    logLevel: process.env.DHT_PROM_HTTP_LOG_LEVEL || 'info',
+    service: process.env.DHT_PROM_SERVICE
   }
 
   if (!config.alias) {
     console.error('DHT_PROM_HTTP_ALIAS is required')
+    process.exit(1)
+  }
+
+  if (!config.service) {
+    console.error('DHT_PROM_SERVICE is required')
     process.exit(1)
   }
 
@@ -49,20 +55,22 @@ async function main () {
     promHttpAddress,
     sharedSecret,
     alias,
-    scraperPublicKey
+    scraperPublicKey,
+    service
   } = loadConfig()
 
   const logger = pino({ level: logLevel })
   logger.info('Starting up Prometheus DHT HTTP bridge')
 
   const dht = new HyperDHT({ bootstrap, connectionKeepAlive: 5000 })
-  const bridge = new PromClientHttpBridge(
+  const bridge = new PromClientHttpBridge({
     dht,
     scraperPublicKey,
     alias,
-    sharedSecret,
-    promHttpAddress
-  )
+    scraperSecret: sharedSecret,
+    promHttpAddress,
+    service
+  })
 
   setupLogging(logger, bridge)
 
@@ -78,6 +86,29 @@ async function main () {
 
 function setupLogging (logger, bridge) {
   const client = bridge.client
+
+  client.aliasClient.on(
+    'register-alias-attempt',
+    ({
+      alias,
+      targetKey,
+      hostname,
+      service,
+      uid
+    }) => {
+      logger.info(`Attempting to register alias ${alias}->${idEnc.normalize(targetKey)} for ${service} on host ${hostname} (${uid})`)
+    }
+  )
+  client.aliasClient.on(
+    'socket-error',
+    ({
+      alias,
+      error,
+      uid
+    }) => {
+      logger.info(`Connecting error while attempting to register alias ${alias}: ${error.stack} (${uid})`)
+    }
+  )
 
   client.on('register-alias-success', ({ updated }) => {
     logger.info(`Successfully registered alias (updated: ${updated})`)
@@ -95,7 +126,6 @@ function setupLogging (logger, bridge) {
   client.on('connection-error', ({ error, uid, remotePublicKey }) => {
     logger.info(`Error on connection to ${idEnc.normalize(remotePublicKey)}: ${error.stack} (uid: ${uid})`)
   })
-  // TODO: probably rename socket-error to connection-error upstream, and add a connection-close
 
   client.on('metrics-request', ({ uid, remotePublicKey }) => {
     logger.info(`Received metrics request from ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)

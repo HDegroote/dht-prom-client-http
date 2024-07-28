@@ -45,6 +45,7 @@ test('integration test (happy flow)', async t => {
       env: {
         DHT_PROM_HTTP_ADDRESS: `http://127.0.0.1:${httpPort}/metrics`,
         DHT_PROM_HTTP_ALIAS: 'dummy',
+        DHT_PROM_SERVICE: 'test-service',
         DHT_PROM_HTTP_SHARED_SECRET: sharedSecret,
         DHT_PROM_HTTP_SCRAPER_PUBLIC_KEY: scraperPublicKey,
         DHT_PROM_HTTP_BOOTSTRAP_PORT: testnet.bootstrap[0].port
@@ -144,6 +145,7 @@ async function setupScraper (t, bootstrap) {
   })
 
   await bridge.ready()
+  await bridge.swarm.flush()
   const bridgeHttpAddress = await new Promise((resolve, reject) => {
     server.listen({ port: 0, host: '127.0.0.1' }, (err, address) => {
       if (err) {
