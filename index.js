@@ -3,7 +3,7 @@ const ReadyResource = require('ready-resource')
 const DhtPromClient = require('dht-prom-client')
 
 class PromClientHttpBridge extends ReadyResource {
-  constructor (dht, scraperPublicKey, alias, scraperSecret, promHttpAddress) {
+  constructor ({ dht, scraperPublicKey, alias, scraperSecret, promHttpAddress, service }) {
     super()
 
     this.promHttpAddress = promHttpAddress
@@ -14,6 +14,7 @@ class PromClientHttpBridge extends ReadyResource {
       scraperPublicKey,
       alias,
       scraperSecret,
+      service,
       { bootstrap: dht.bootstrapNodes }
     )
   }
