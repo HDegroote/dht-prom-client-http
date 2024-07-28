@@ -43,6 +43,7 @@ test('integration test (happy flow)', async t => {
     [EXECUTABLE],
     {
       env: {
+        DHT_PROM_HTTP_LOG_LEVEL: 'debug',
         DHT_PROM_HTTP_ADDRESS: `http://127.0.0.1:${httpPort}/metrics`,
         DHT_PROM_HTTP_ALIAS: 'dummy',
         DHT_PROM_SERVICE: 'test-service',

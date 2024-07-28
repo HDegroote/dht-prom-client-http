@@ -127,15 +127,17 @@ function setupLogging (logger, bridge) {
     logger.info(`Error on connection to ${idEnc.normalize(remotePublicKey)}: ${error.stack} (uid: ${uid})`)
   })
 
-  client.on('metrics-request', ({ uid, remotePublicKey }) => {
-    logger.info(`Received metrics request from ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)
-  })
-  client.on('metrics-error', ({ uid, error }) => {
-    logger.info(`Failed to process metrics request: ${error} (uid: ${uid})`)
-  })
-  client.on('metrics-success', ({ uid }) => {
-    logger.info(`Successfully processed metrics request (uid: ${uid})`)
-  })
+  if (logger.level === 'debug') {
+    client.on('metrics-request', ({ uid, remotePublicKey }) => {
+      logger.info(`Received metrics request from ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)
+    })
+    client.on('metrics-error', ({ uid, error }) => {
+      logger.info(`Failed to process metrics request: ${error} (uid: ${uid})`)
+    })
+    client.on('metrics-success', ({ uid }) => {
+      logger.info(`Successfully processed metrics request (uid: ${uid})`)
+    })
+  }
 }
 
 main()

@@ -34,6 +34,7 @@ class PromClientHttpBridge extends ReadyResource {
   }
 
   async getMetrics () {
+    // TODO: timeout, circuit breaker
     return new Promise((resolve, reject) => {
       http.get(this.promHttpAddress, res => {
         const status = res.statusCode
