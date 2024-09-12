@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/HDegroote/dht-prom-client-http#readme",
   "dependencies": {
-    "dht-prom-client": "^0.0.1-alpha.10",
+    "dht-prom-client": "https://git@gitlab.com/dcent-tech/dht-prom-client#v1",
     "graceful-goodbye": "^1.3.0",
     "hypercore-id-encoding": "^1.3.0",
     "hyperdht": "^6.15.4",
@@ -37,7 +37,7 @@
   "devDependencies": {
     "axios": "^1.7.2",
     "brittle": "^3.6.1",
-    "dht-prometheus": "^0.0.1-alpha.5",
+    "dht-prometheus": "hdegroote/dht-prometheus#v1",
     "fastify": "^4.28.1",
     "hypercore-crypto": "^3.4.2",
     "newline-decoder": "^1.0.2",
