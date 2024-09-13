@@ -4,7 +4,7 @@
   "description": "Sidecar to bridge a http prom-client to prom-client-dht",
   "main": "index.js",
   "scripts": {
-    "test": "standard && brittle test/integration.js"
+    "test": "standard && brittle --coverage test/test.js test/integration.js"
   },
   "bin": {
     "dht-prom-client-http": "./run.js"
