@@ -1,6 +1,6 @@
 {
   "name": "dht-prom-client-http",
-  "version": "0.0.1-alpha.4",
+  "version": "1.0.0",
   "description": "Sidecar to bridge a http prom-client to prom-client-dht",
   "main": "index.js",
   "scripts": {
