@@ -43,7 +43,7 @@ test('integration test (happy flow)', async t => {
         DHT_PROM_HTTP_LOG_LEVEL: 'debug',
         DHT_PROM_HTTP_ADDRESS: `http://127.0.0.1:${httpPort}/metrics`,
         DHT_PROM_HTTP_ALIAS: 'dummy',
-        DHT_PROM_SERVICE: 'test-service',
+        DHT_PROM_HTTP_SERVICE: 'test-service',
         DHT_PROM_HTTP_SHARED_SECRET: sharedSecret,
         DHT_PROM_HTTP_SCRAPER_PUBLIC_KEY: scraperPublicKey,
         DHT_PROM_HTTP_BOOTSTRAP_PORT: testnet.bootstrap[0].port
