@@ -1,18 +1,18 @@
 const PrometheusDhtBridge = require('dht-prometheus')
 const hypCrypto = require('hypercore-crypto')
 const getTmpDir = require('test-tmp')
-const HyperDHT = require('hyperdht')
+const Hyperswarm = require('hyperswarm')
 const Fastify = require('fastify')
 const path = require('path')
 
 async function setupScraper (t, bootstrap, debug = false) {
   const sharedSecret = hypCrypto.randomBytes(32)
 
-  const dht = new HyperDHT({ bootstrap })
+  const swarm = new Hyperswarm({ bootstrap })
   const server = new Fastify({ logger: debug })
   const tmpDir = await getTmpDir(t)
   const prometheusTargetsLoc = path.join(tmpDir, 'prom-targets.json')
-  const bridge = new PrometheusDhtBridge(dht, server, sharedSecret, {
+  const bridge = new PrometheusDhtBridge(swarm, server, sharedSecret, {
     _forceFlushOnClientReady: true, // to avoid race conditions
     prometheusTargetsLoc
   })
@@ -20,7 +20,7 @@ async function setupScraper (t, bootstrap, debug = false) {
   t.teardown(async () => {
     await server.close()
     await bridge.close()
-    await dht.destroy()
+    await swarm.destroy()
   })
 
   await bridge.ready()
