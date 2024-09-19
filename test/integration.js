@@ -3,14 +3,11 @@ const { spawn } = require('child_process')
 const path = require('path')
 const NewlineDecoder = require('newline-decoder')
 const test = require('brittle')
-const Fastify = require('fastify')
-const PrometheusDhtBridge = require('dht-prometheus')
 const setupTestnet = require('hyperdht/testnet')
-const HyperDHT = require('hyperdht')
-const getTmpDir = require('test-tmp')
 const idEnc = require('hypercore-id-encoding')
-const hypCrypto = require('hypercore-crypto')
 const axios = require('axios')
+
+const { setupScraper, setupHttpServer } = require('./helpers')
 
 const EXECUTABLE = path.join(path.dirname(__dirname), 'run.js')
 
@@ -32,8 +29,8 @@ test('integration test (happy flow)', async t => {
     await testnet.destroy()
   }, 1000)
 
-  const httpPort = await setupHttpServer(t)
-  const { scraper, bridgeHttpAddress } = await setupScraper(t, testnet.bootstrap)
+  const httpPort = await setupHttpServer(t, DEBUG)
+  const { scraper, bridgeHttpAddress } = await setupScraper(t, testnet.bootstrap, DEBUG)
 
   const scraperPublicKey = idEnc.normalize(scraper.publicKey)
   const sharedSecret = idEnc.normalize(scraper.secret)
@@ -46,7 +43,7 @@ test('integration test (happy flow)', async t => {
         DHT_PROM_HTTP_LOG_LEVEL: 'debug',
         DHT_PROM_HTTP_ADDRESS: `http://127.0.0.1:${httpPort}/metrics`,
         DHT_PROM_HTTP_ALIAS: 'dummy',
-        DHT_PROM_SERVICE: 'test-service',
+        DHT_PROM_HTTP_SERVICE: 'test-service',
         DHT_PROM_HTTP_SHARED_SECRET: sharedSecret,
         DHT_PROM_HTTP_SCRAPER_PUBLIC_KEY: scraperPublicKey,
         DHT_PROM_HTTP_BOOTSTRAP_PORT: testnet.bootstrap[0].port
@@ -70,7 +67,7 @@ test('integration test (happy flow)', async t => {
     if (DEBUG) console.log(d.toString())
 
     for (const line of stdoutDec.push(d)) {
-      if (line.includes('Successfully registered alias')) {
+      if (line.includes('successfully registered alias')) {
         tStartup.pass('Successfully registered alias')
       }
 
@@ -102,60 +99,3 @@ promhttp_metric_handler_requests_in_flight 1`,
   httpPromClientProc.kill('SIGTERM')
   await tShutdown
 })
-
-async function setupHttpServer (t) {
-  const httpServer = new Fastify({ logger: DEBUG })
-  httpServer.get('/metrics', (req, reply) => {
-    reply.send(`# HELP promhttp_metric_handler_requests_in_flight Current number of scrapes being served.
-# TYPE promhttp_metric_handler_requests_in_flight gauge
-promhttp_metric_handler_requests_in_flight 1`)
-  })
-
-  t.teardown(async () => {
-    await httpServer.close()
-  })
-
-  return await new Promise((resolve, reject) => {
-    httpServer.listen({ port: 0, host: '127.0.0.1' }, (err, address) => {
-      if (err) {
-        reject(err)
-      } else {
-        const port = address.split(':')[2]
-        resolve(port)
-      }
-    })
-  })
-}
-
-async function setupScraper (t, bootstrap) {
-  const sharedSecret = hypCrypto.randomBytes(32)
-
-  const dht = new HyperDHT({ bootstrap })
-  const server = new Fastify({ logger: DEBUG })
-  const tmpDir = await getTmpDir(t)
-  const prometheusTargetsLoc = path.join(tmpDir, 'prom-targets.json')
-  const bridge = new PrometheusDhtBridge(dht, server, sharedSecret, {
-    _forceFlushOnClientReady: true, // to avoid race conditions
-    prometheusTargetsLoc
-  })
-
-  t.teardown(async () => {
-    await server.close()
-    await bridge.close()
-    await dht.destroy()
-  })
-
-  await bridge.ready()
-  await bridge.swarm.flush()
-  const bridgeHttpAddress = await new Promise((resolve, reject) => {
-    server.listen({ port: 0, host: '127.0.0.1' }, (err, address) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(`http://127.0.0.1:${address.split(':')[2]}`)
-      }
-    })
-  })
-
-  return { scraper: bridge, bridgeHttpAddress }
-}

@@ -8,10 +8,15 @@ const PromClientHttpBridge = require('./index')
 
 function loadConfig () {
   const config = {
-    promHttpAddress: process.env.DHT_PROM_HTTP_ADDRESS || 'http://127.0.0.1:9100/metrics',
+    promHttpAddress: process.env.DHT_PROM_HTTP_ADDRESS,
     alias: process.env.DHT_PROM_HTTP_ALIAS,
     logLevel: process.env.DHT_PROM_HTTP_LOG_LEVEL || 'info',
-    service: process.env.DHT_PROM_SERVICE
+    service: process.env.DHT_PROM_HTTP_SERVICE
+  }
+
+  if (!config.promHttpAddress) {
+    console.error('DHT_PROM_HTTP_ADDRESS is required')
+    process.exit(1)
   }
 
   if (!config.alias) {
@@ -62,7 +67,7 @@ async function main () {
   const logger = pino({ level: logLevel })
   logger.info('Starting up Prometheus DHT HTTP bridge')
 
-  const dht = new HyperDHT({ bootstrap, connectionKeepAlive: 5000 })
+  const dht = new HyperDHT({ bootstrap })
   const bridge = new PromClientHttpBridge({
     dht,
     scraperPublicKey,
@@ -85,59 +90,11 @@ async function main () {
 }
 
 function setupLogging (logger, bridge) {
-  const client = bridge.client
+  bridge.client.registerLogger(logger)
 
-  client.aliasClient.on(
-    'register-alias-attempt',
-    ({
-      alias,
-      targetKey,
-      hostname,
-      service,
-      uid
-    }) => {
-      logger.info(`Attempting to register alias ${alias}->${idEnc.normalize(targetKey)} for ${service} on host ${hostname} (${uid})`)
-    }
-  )
-  client.aliasClient.on(
-    'socket-error',
-    ({
-      alias,
-      error,
-      uid
-    }) => {
-      logger.info(`Connecting error while attempting to register alias ${alias}: ${error.stack} (${uid})`)
-    }
-  )
-
-  client.on('register-alias-success', ({ updated }) => {
-    logger.info(`Successfully registered alias (updated: ${updated})`)
+  bridge.on('request-timeout', () => {
+    logger.info('Request to get metrics over http timed out')
   })
-  client.on('register-alias-error', (error) => {
-    logger.info(`Failed to register alias ${error.stack}`)
-  })
-
-  client.on('connection-open', ({ uid, remotePublicKey }) => {
-    logger.info(`Opened connection to ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)
-  })
-  client.on('connection-close', ({ uid, remotePublicKey }) => {
-    logger.info(`Closed connection to ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)
-  })
-  client.on('connection-error', ({ error, uid, remotePublicKey }) => {
-    logger.info(`Error on connection to ${idEnc.normalize(remotePublicKey)}: ${error.stack} (uid: ${uid})`)
-  })
-
-  if (logger.level === 'debug') {
-    client.on('metrics-request', ({ uid, remotePublicKey }) => {
-      logger.info(`Received metrics request from ${idEnc.normalize(remotePublicKey)} (uid: ${uid})`)
-    })
-    client.on('metrics-error', ({ uid, error }) => {
-      logger.info(`Failed to process metrics request: ${error} (uid: ${uid})`)
-    })
-    client.on('metrics-success', ({ uid }) => {
-      logger.info(`Successfully processed metrics request (uid: ${uid})`)
-    })
-  }
 }
 
 main()

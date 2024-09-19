@@ -3,10 +3,11 @@ const ReadyResource = require('ready-resource')
 const DhtPromClient = require('dht-prom-client')
 
 class PromClientHttpBridge extends ReadyResource {
-  constructor ({ dht, scraperPublicKey, alias, scraperSecret, promHttpAddress, service }) {
+  constructor ({ dht, scraperPublicKey, alias, scraperSecret, promHttpAddress, service, requestTimeoutMs = 5000 }) {
     super()
 
     this.promHttpAddress = promHttpAddress
+    this.requestTimeoutMs = requestTimeoutMs
 
     this.client = new DhtPromClient(
       dht,
@@ -34,28 +35,38 @@ class PromClientHttpBridge extends ReadyResource {
   }
 
   async getMetrics () {
-    // TODO: timeout, circuit breaker
+    // TODO: circuit breaker
     return new Promise((resolve, reject) => {
-      http.get(this.promHttpAddress, res => {
-        const status = res.statusCode
+      const req = http.get(
+        this.promHttpAddress,
+        { timeout: this.requestTimeoutMs },
+        res => {
+          const status = res.statusCode
 
-        const data = []
+          const data = []
 
-        res.on('data', chunk => {
-          data.push(chunk)
-        })
+          res.on('data', chunk => {
+            data.push(chunk)
+          })
 
-        res.on('end', () => {
-          if (status === 200) {
-            resolve(data.join(''))
-          }
+          res.on('end', () => {
+            if (status === 200) {
+              resolve(data.join(''))
+            }
 
-          reject(new Error(
-            `Upstream error (status ${status}): ${data.join('')}`
-          ))
-        })
-      }).on('error', err => {
+            reject(new Error(
+              `Upstream error (status ${status}): ${data.join('')}`
+            ))
+          })
+        }
+      )
+
+      req.on('error', err => {
         reject(err)
+      })
+      req.on('timeout', () => {
+        req.destroy(new Error('Timeout'))
+        this.emit('request-timeout')
       })
     })
   }
