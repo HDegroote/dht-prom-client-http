@@ -13,7 +13,7 @@ Configuration is set via environment variables. It includes
 - `DHT_PROM_HTTP_ADDRESS`: The http address of the metrics server you wish to expose. For example `http://127.0.0.1:9100/metrics`.
 - `DHT_PROM_HTTP_ALIAS`: The unique alias used to register with DHT Prometheus.
 - `DHT_PROM_HTTP_LOG_LEVEL`: The log level (debug, info...). Defaults to info.
-- `DHT_PROM_HTTP_SERVICE`: The service field to pass through DHT Prometheus.
+- `DHT_PROM_HTTP_SERVICE`: The service field to pass to DHT Prometheus.
 - `DHT_PROM_HTTP_SCRAPER_PUBLIC_KEY`: The public key of the DHT Prometheus instance which will scrape us, in hex or z32 format.
 - `DHT_PROM_HTTP_SHARED_SECRET`: The secret used to prove our right to register with the scraper. It is a 32-byte buffer, in hex or z32 format.
 
